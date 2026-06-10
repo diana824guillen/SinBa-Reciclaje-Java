@@ -12,29 +12,52 @@ public class LoginFrame extends JFrame {
     public LoginFrame() {
         controller = new LoginController();
         setTitle("SinBa - Iniciar Sesión");
-        setSize(400, 300);
+        setSize(450, 400);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel(new GridBagLayout());
+        // Panel fondo (color claro)
+        JPanel background = new JPanel(new GridBagLayout());
+        background.setBackground(new Color(245, 248, 250));
+
+        // Tarjeta blanca
+        JPanel card = new JPanel(new GridBagLayout());
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
+                BorderFactory.createEmptyBorder(30, 40, 30, 40)
+        ));
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5,5,5,5);
+        gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(new JLabel("Email:"), gbc);
+        // Logo / título
+        JLabel title = new JLabel("♻️ SinBa", SwingConstants.CENTER);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        title.setForeground(new Color(46, 204, 113));
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        card.add(title, gbc);
+
+        // Email
+        gbc.gridy++; gbc.gridwidth = 1;
+        card.add(new JLabel("Correo electrónico"), gbc);
         gbc.gridx = 1;
         emailField = new JTextField(20);
-        panel.add(emailField, gbc);
+        card.add(emailField, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1;
-        panel.add(new JLabel("Contraseña:"), gbc);
+        // Contraseña
+        gbc.gridx = 0; gbc.gridy++;
+        card.add(new JLabel("Contraseña"), gbc);
         gbc.gridx = 1;
         passwordField = new JPasswordField(20);
-        panel.add(passwordField, gbc);
+        card.add(passwordField, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
+        // Botón login
+        gbc.gridx = 0; gbc.gridy++; gbc.gridwidth = 2;
         JButton loginBtn = new JButton("Iniciar Sesión");
+        loginBtn.setPreferredSize(new Dimension(200, 40));
         loginBtn.addActionListener(e -> {
             String email = emailField.getText();
             String password = new String(passwordField.getPassword());
@@ -45,8 +68,9 @@ public class LoginFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "Credenciales inválidas", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-        panel.add(loginBtn, gbc);
+        card.add(loginBtn, gbc);
 
-        add(panel);
+        background.add(card);
+        add(background, BorderLayout.CENTER);
     }
 }

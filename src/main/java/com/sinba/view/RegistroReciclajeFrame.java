@@ -15,36 +15,67 @@ public class RegistroReciclajeFrame extends JFrame {
         this.userId = userId;
         controller = new ReciclajeController();
         setTitle("Registrar Reciclaje");
-        setSize(400, 300);
+        setSize(450, 350);
         setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
-        panel.add(new JLabel("Material:"));
-        materialBox = new JComboBox<>(new String[]{"Plástico","Vidrio","Papel","Cartón","Metal","Electrónicos","Pilas","Aceite","Orgánico"});
-        panel.add(materialBox);
+        // Fondo claro
+        JPanel background = new JPanel(new GridBagLayout());
+        background.setBackground(new Color(245, 248, 250));
 
-        panel.add(new JLabel("Cantidad (kg):"));
+        // Tarjeta blanca
+        JPanel card = new JPanel(new GridBagLayout());
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220), 1, true),
+                BorderFactory.createEmptyBorder(25, 30, 25, 30)
+        ));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel title = new JLabel("♻️ Registrar Reciclaje", SwingConstants.CENTER);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setForeground(new Color(46, 204, 113));
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        card.add(title, gbc);
+
+        gbc.gridy++; gbc.gridwidth = 1;
+        card.add(new JLabel("Material:"), gbc);
+        gbc.gridx = 1;
+        materialBox = new JComboBox<>(new String[]{"Plástico", "Vidrio", "Papel", "Cartón", "Metal", "Electrónicos", "Pilas", "Aceite", "Orgánico"});
+        card.add(materialBox, gbc);
+
+        gbc.gridx = 0; gbc.gridy++;
+        card.add(new JLabel("Cantidad (kg):"), gbc);
+        gbc.gridx = 1;
         cantidadField = new JTextField();
-        panel.add(cantidadField);
+        card.add(cantidadField, gbc);
 
-        panel.add(new JLabel("Ubicación:"));
-        ubicacionBox = new JComboBox<>(new String[]{"Real Plaza Chiclayo","Plaza Mayor","Parque Principal","Centro Comercial","Universidad Tecnológica","Municipalidad"});
-        panel.add(ubicacionBox);
+        gbc.gridx = 0; gbc.gridy++;
+        card.add(new JLabel("Ubicación:"), gbc);
+        gbc.gridx = 1;
+        ubicacionBox = new JComboBox<>(new String[]{"Real Plaza Chiclayo", "Plaza Mayor", "Parque Principal", "Centro Comercial", "Universidad Tecnológica", "Municipalidad"});
+        card.add(ubicacionBox, gbc);
 
-        JButton registrarBtn = new JButton("Registrar");
+        gbc.gridx = 0; gbc.gridy++; gbc.gridwidth = 2;
+        JButton registrarBtn = new JButton("Registrar Reciclaje");
+        registrarBtn.setPreferredSize(new Dimension(200, 40));
         registrarBtn.addActionListener(e -> {
             String material = (String) materialBox.getSelectedItem();
             double cantidad = Double.parseDouble(cantidadField.getText());
             String ubicacion = (String) ubicacionBox.getSelectedItem();
             if (controller.registrar(userId, material, cantidad, ubicacion)) {
-                JOptionPane.showMessageDialog(this, "Reciclaje registrado con éxito!");
+                JOptionPane.showMessageDialog(this, "Reciclaje registrado con éxito.");
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Error al registrar", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error al registrar.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-        panel.add(registrarBtn);
+        card.add(registrarBtn, gbc);
 
-        add(panel);
+        background.add(card);
+        add(background, BorderLayout.CENTER);
     }
 }

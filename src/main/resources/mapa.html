@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SinBa - Mapa de Reciclaje</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; }
+        #mapa { height: 100vh; width: 100%; }
+        .punto-info { padding: 10px; }
+        .punto-info h4 { color: #2ecc71; margin-bottom: 5px; }
+        .material-tag {
+            display: inline-block; padding: 3px 8px; background: #2ecc71;
+            color: white; border-radius: 12px; font-size: 12px; margin: 2px;
+        }
+    </style>
+</head>
+<body>
+<div id="mapa"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    const mapa = L.map('mapa').setView([-6.771, -79.841], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(mapa);
+
+    const puntosReciclaje = [
+        { nombre: "Real Plaza Chiclayo", lat: -6.771, lng: -79.841, tipo: "verde", materiales: ["Plástico", "Vidrio", "Papel"], direccion: "Av. Balta 1155" },
+        { nombre: "Parque Principal", lat: -6.773, lng: -79.839, tipo: "verde", materiales: ["Plástico", "Cartón"], direccion: "Plaza de Armas" },
+        { nombre: "Universidad Tecnológica del Perú", lat: -6.775, lng: -79.845, tipo: "azul", materiales: ["Electrónicos", "Pilas", "Papel"], direccion: "Av. Salaverry" },
+        { nombre: "Municipalidad de Chiclayo", lat: -6.769, lng: -79.838, tipo: "amarillo", materiales: ["Plástico", "Vidrio", "Metal", "Orgánico"], direccion: "Calle San José 823" },
+        { nombre: "Centro Comercial Open Plaza", lat: -6.767, lng: -79.852, tipo: "verde", materiales: ["Plástico", "Vidrio", "Papel", "Cartón"], direccion: "Av. Chinchaysuyo" }
+    ];
+
+    const coloresTipo = { 'verde': '#2ecc71', 'azul': '#3498db', 'amarillo': '#f1c40f' };
+
+    puntosReciclaje.forEach(punto => {
+        const marker = L.marker([punto.lat, punto.lng], {
+            icon: L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="background: ${coloresTipo[punto.tipo]}; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">♻️</div>`,
+                iconSize: [30, 30]
+            })
+        }).addTo(mapa);
+
+        const materialesHtml = punto.materiales.map(m => `<span class="material-tag">${m}</span>`).join('');
+        marker.bindPopup(`
+            <div class="punto-info">
+                <h4>${punto.nombre}</h4>
+                <p><strong>Dirección:</strong> ${punto.direccion}</p>
+                <p><strong>Materiales aceptados:</strong></p>
+                <div>${materialesHtml}</div>
+            </div>
+        `);
+    });
+
+    // Geolocalización
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            const { latitude, longitude } = position.coords;
+            mapa.setView([latitude, longitude], 13);
+            L.marker([latitude, longitude], {
+                icon: L.divIcon({
+                    className: 'user-marker',
+                    html: `<div style="background: #e74c3c; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white;"></div>`,
+                    iconSize: [20, 20]
+                })
+            }).addTo(mapa).bindPopup('📍 Tu ubicación actual').openPopup();
+        });
+    }
+</script>
+</body>
+</html>
