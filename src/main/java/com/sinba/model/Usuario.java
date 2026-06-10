@@ -6,10 +6,10 @@ public class Usuario {
     private String email;
     private int puntos;
     private String role;
-    private String telefono;          // nuevo
-    private String direccion;         // nuevo
-    private String fechaRegistro;     // nuevo (String, no Date)
-    private String fechaActualizacion;// nuevo
+    private String telefono;
+    private String direccion;
+    private String fechaRegistro;
+    private String fechaActualizacion;
 
     public Usuario() {}
 

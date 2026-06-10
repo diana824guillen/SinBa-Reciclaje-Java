@@ -8,7 +8,7 @@ public class Reciclaje {
     private int puntos;
     private String descripcion;
     private String ubicacion;
-    private String fecha;           // ← String (formato ISO)
+    private String fecha;
     private String userEmail;
 
     public Reciclaje() {}

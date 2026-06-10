@@ -37,7 +37,6 @@ public class FirestoreDAO {
         db.collection("reciclajes").add(reciclaje);
     }
 
-    // Método corregido
     public List<Reciclaje> getReciclajesPorUsuario(String userId) throws ExecutionException, InterruptedException {
         ApiFuture<QuerySnapshot> query = db.collection("reciclajes")
                 .whereEqualTo("userId", userId)

@@ -19,7 +19,7 @@ public class FirebaseConfig {
                         .getResourceAsStream("serviceAccountKey.json");
                 FirebaseOptions options = FirebaseOptions.builder()
                         .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                        .setProjectId("sinba-reciclaje") // tu projectId
+                        .setProjectId("sinba-reciclaje")
                         .build();
                 if (FirebaseApp.getApps().isEmpty()) {
                     FirebaseApp.initializeApp(options);
