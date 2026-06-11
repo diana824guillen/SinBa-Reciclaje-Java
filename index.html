@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SinBa - Recicla y Gana Puntos</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .navbar { background: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #2e7d32; }
+        .nav-links a { margin-left: 1.5rem; text-decoration: none; color: #333; cursor: pointer; }
+        .nav-links a:hover { color: #4caf50; }
+        .hero { text-align: center; padding: 4rem 2rem; color: white; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .hero button { margin-top: 2rem; padding: 1rem 2rem; background: #4caf50; color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 1.1rem; }
+        .stats { display: flex; justify-content: center; gap: 2rem; padding: 2rem; flex-wrap: wrap; }
+        .card { background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2); min-width: 150px; }
+        .card h3 { font-size: 2rem; color: #4caf50; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .login-card, .dashboard-card { background: white; border-radius: 15px; padding: 2rem; margin: 2rem auto; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .dashboard-card { max-width: 100%; margin-bottom: 1.5rem; }
+        input, select { width: 100%; padding: 0.75rem; margin: 0.5rem 0; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        button { width: 100%; padding: 0.75rem; margin: 0.5rem 0; background: #4caf50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #2e7d32; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .puntos { font-size: 3rem; color: #4caf50; font-weight: bold; text-align: center; }
+        .hidden { display: none; }
+        .error { color: red; margin-top: 0.5rem; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #4caf50; color: white; }
+        .recompensas-grid { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+        .recompensa-card { border: 1px solid #ddd; border-radius: 10px; padding: 1rem; width: 220px; text-align: center; background: #f9f9f9; }
+        .recompensa-card h4 { color: #2e7d32; margin-bottom: 0.5rem; }
+        #map { height: 500px; margin: 2rem; border-radius: 15px; overflow: hidden; }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .nav-links a { margin-left: 1rem; }
+            .recompensa-card { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">♻️ SinBa</div>
+        <div class="nav-links">
+            <a onclick="mostrarInicio()">Inicio</a>
+            <a onclick="mostrarMapa()">Mapa</a>
+            <a id="authLink" onclick="mostrarLogin()">Iniciar Sesión</a>
+        </div>
+    </nav>
+
+    <div id="contenido">
+        <!-- PÁGINA DE INICIO -->
+        <div id="inicio">
+            <div class="hero">
+                <h1>Recicla y Gana Puntos</h1>
+                <p>Cada artículo que reciclas te acerca a descuentos exclusivos</p>
+                <button onclick="mostrarLogin()">Comenzar ahora</button>
+            </div>
+            <div class="stats">
+                <div class="card"><h3>🌱 +500</h3><p>Puntos de reciclaje</p></div>
+                <div class="card"><h3>♻️ +10,000 kg</h3><p>Residuos reciclados</p></div>
+                <div class="card"><h3>🏆 +30</h3><p>Marcas aliadas</p></div>
+            </div>
+        </div>
+
+        <!-- PÁGINA DE LOGIN (DEMO) -->
+        <div id="login" class="hidden">
+            <div class="login-card">
+                <h2 style="text-align: center;">♻️ Iniciar Sesión</h2>
+                <input type="email" id="email" placeholder="Correo electrónico" value="demo@sinba.com">
+                <input type="password" id="password" placeholder="Contraseña" value="123456">
+                <button onclick="iniciarSesion()">Ingresar</button>
+                <div id="loginError" class="error"></div>
+                <p style="text-align: center; margin-top: 1rem; color: #666;">✨ DEMO: Haz clic en "Ingresar" para probar</p>
+            </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="hidden">
+            <div class="container">
+                <div class="dashboard-card">
+                    <h2>Bienvenido, <span id="userNombre">---</span></h2>
+                    <div class="puntos" id="puntosUsuario">---</div>
+                    <p style="text-align: center;">Tus puntos acumulados</p>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>📦 Registrar Reciclaje</h3>
+                    <select id="material">
+                        <option value="Plástico">Plástico (10 pts/kg)</option>
+                        <option value="Vidrio">Vidrio (8 pts/kg)</option>
+                        <option value="Papel">Papel (5 pts/kg)</option>
+                        <option value="Cartón">Cartón (5 pts/kg)</option>
+                        <option value="Metal">Metal (15 pts/kg)</option>
+                        <option value="Electrónicos">Electrónicos (20 pts/kg)</option>
+                        <option value="Pilas">Pilas (25 pts/kg)</option>
+                        <option value="Aceite">Aceite (12 pts/kg)</option>
+                    </select>
+                    <input type="number" id="cantidad" step="0.1" placeholder="Cantidad (kg)">
+                    <select id="ubicacion">
+                        <option value="Real Plaza Chiclayo">Real Plaza Chiclayo</option>
+                        <option value="Plaza Mayor">Plaza Mayor</option>
+                        <option value="Parque Principal">Parque Principal</option>
+                        <option value="Universidad Tecnológica">Universidad Tecnológica del Perú</option>
+                        <option value="Municipalidad">Municipalidad de Chiclayo</option>
+                    </select>
+                    <button onclick="registrarReciclaje()">Registrar Reciclaje</button>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>📋 Últimos Reciclajes</h3>
+                    <table id="historialTabla">
+                        <thead>
+                            <tr><th>Material</th><th>Cantidad</th><th>Puntos</th><th>Fecha</th></tr>
+                        </thead>
+                        <tbody id="historialBody">
+                            <tr><td colspan="4" style="text-align: center;">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>🎁 Canjea tus puntos</h3>
+                    <div id="recompensasLista" class="recompensas-grid">Cargando recompensas...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAPA -->
+        <div id="mapa" class="hidden">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // ==========================================
+        // DATOS DE PRUEBA (DEMO SIN BACKEND)
+        // ==========================================
+        let usuarioActual = null;
+        let map = null;
+        
+        // Usuario de prueba
+        const usuarioPrueba = {
+            uid: "demo123",
+            email: "demo@sinba.com",
+            nombre: "Usuario Demo",
+            puntos: 580,
+            role: "user"
+        };
+        
+        // Historial de reciclajes de prueba
+        let reciclajesPrueba = [
+            { material: "Plástico", cantidad: 2.5, puntos: 25, fecha: new Date(2026, 5, 10).toISOString() },
+            { material: "Vidrio", cantidad: 1.0, puntos: 8, fecha: new Date(2026, 5, 9).toISOString() },
+            { material: "Papel", cantidad: 3.0, puntos: 15, fecha: new Date(2026, 5, 8).toISOString() },
+            { material: "Metal", cantidad: 0.5, puntos: 8, fecha: new Date(2026, 5, 7).toISOString() }
+        ];
+        
+        // Recompensas disponibles
+        const recompensasPrueba = [
+            { nombre: "Starbucks - Café Gratis", puntos: 200, descripcion: "Café americano tamaño grande" },
+            { nombre: "Real Plaza - 20% descuento", puntos: 300, descripcion: "20% de descuento en tiendas" },
+            { nombre: "Cineplanet - 2x1 entradas", puntos: 400, descripcion: "2x1 en entradas de cine" },
+            { nombre: "Plaza Vea - 15% descuento", puntos: 250, descripcion: "15% de descuento en compras" },
+            { nombre: "KFC - Combo Familiar", puntos: 600, descripcion: "Combo familiar gratis" }
+        ];
+        
+        // Tabla de puntos por material
+        const puntosPorMaterial = {
+            "Plástico": 10, "Vidrio": 8, "Papel": 5, "Cartón": 5,
+            "Metal": 15, "Electrónicos": 20, "Pilas": 25, "Aceite": 12, "Orgánico": 3
+        };
+        
+        // ==========================================
+        // NAVEGACIÓN
+        // ==========================================
+        function mostrarInicio() {
+            document.getElementById('inicio').classList.remove('hidden');
+            document.getElementById('login').classList.add('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('mapa').classList.add('hidden');
+        }
+        
+        function mostrarLogin() {
+            document.getElementById('inicio').classList.add('hidden');
+            document.getElementById('login').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('mapa').classList.add('hidden');
+            document.getElementById('loginError').textContent = '';
+        }
+        
+        function mostrarDashboard() {
+            document.getElementById('inicio').classList.add('hidden');
+            document.getElementById('login').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('mapa').classList.add('hidden');
+            const authLink = document.getElementById('authLink');
+            authLink.innerHTML = 'Cerrar Sesión';
+            authLink.setAttribute('onclick', 'cerrarSesion()');
+        }
+        
+        function mostrarMapa() {
+            document.getElementById('inicio').classList.add('hidden');
+            document.getElementById('login').classList.add('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('mapa').classList.remove('hidden');
+            inicializarMapa();
+        }
+        
+        function cerrarSesion() {
+            usuarioActual = null;
+            const authLink = document.getElementById('authLink');
+            authLink.innerHTML = 'Iniciar Sesión';
+            authLink.setAttribute('onclick', 'mostrarLogin()');
+            mostrarInicio();
+        }
+        
+        // ==========================================
+        // LOGIN (DEMO)
+        // ==========================================
+        function iniciarSesion() {
+            // Demo: cualquier email y contraseña funciona
+            usuarioActual = usuarioPrueba;
+            document.getElementById('userNombre').innerText = usuarioActual.nombre;
+            document.getElementById('puntosUsuario').innerText = usuarioActual.puntos;
+            cargarHistorial();
+            cargarRecompensas();
+            mostrarDashboard();
+        }
+        
+        // ==========================================
+        // HISTORIAL
+        // ==========================================
+        function cargarHistorial() {
+            const tbody = document.getElementById('historialBody');
+            tbody.innerHTML = '';
+            
+            if (reciclajesPrueba.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No hay reciclajes registrados</td></tr>';
+            } else {
+                reciclajesPrueba.slice().reverse().forEach(r => {
+                    const row = tbody.insertRow();
+                    row.insertCell(0).textContent = r.material;
+                    row.insertCell(1).textContent = r.cantidad + ' kg';
+                    row.insertCell(2).textContent = r.puntos;
+                    row.insertCell(3).textContent = new Date(r.fecha).toLocaleDateString();
+                });
+            }
+        }
+        
+        // ==========================================
+        // RECOMPENSAS
+        // ==========================================
+        function cargarRecompensas() {
+            const container = document.getElementById('recompensasLista');
+            container.innerHTML = '';
+            
+            recompensasPrueba.forEach(rec => {
+                const disabled = usuarioActual && usuarioActual.puntos < rec.puntos;
+                const card = document.createElement('div');
+                card.className = 'recompensa-card';
+                card.innerHTML = `
+                    <h4>${rec.nombre}</h4>
+                    <p>🎯 ${rec.puntos} puntos</p>
+                    <p><small>${rec.descripcion}</small></p>
+                    <button onclick="canjear('${rec.nombre}', ${rec.puntos})" ${disabled ? 'disabled' : ''}>
+                        ${disabled ? 'Puntos insuficientes' : 'Canjear'}
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function canjear(recompensa, puntos) {
+            if (usuarioActual && usuarioActual.puntos >= puntos) {
+                usuarioActual.puntos -= puntos;
+                document.getElementById('puntosUsuario').innerText = usuarioActual.puntos;
+                alert(`✅ ¡Canje exitoso!\n\nHas canjeado: ${recompensa}\nPuntos gastados: ${puntos}\nPuntos restantes: ${usuarioActual.puntos}`);
+                cargarRecompensas();
+            } else {
+                alert(`❌ Puntos insuficientes.\n\nNecesitas ${puntos} puntos.\nTienes ${usuarioActual?.puntos || 0} puntos.`);
+            }
+        }
+        
+        // ==========================================
+        // REGISTRAR RECICLAJE
+        // ==========================================
+        function registrarReciclaje() {
+            const material = document.getElementById('material').value;
+            const cantidad = parseFloat(document.getElementById('cantidad').value);
+            const ubicacion = document.getElementById('ubicacion').value;
+            
+            if (!cantidad || cantidad <= 0) {
+                alert('❌ Por favor, ingresa una cantidad válida en kilogramos');
+                return;
+            }
+            
+            const puntos = Math.round(cantidad * (puntosPorMaterial[material] || 5));
+            
+            // Agregar al historial
+            reciclajesPrueba.unshift({
+                material: material,
+                cantidad: cantidad,
+                puntos: puntos,
+                fecha: new Date().toISOString(),
+                ubicacion: ubicacion
+            });
+            
+            // Actualizar puntos del usuario
+            if (usuarioActual) {
+                usuarioActual.puntos += puntos;
+                document.getElementById('puntosUsuario').innerText = usuarioActual.puntos;
+            }
+            
+            // Actualizar interfaces
+            cargarHistorial();
+            cargarRecompensas();
+            
+            // Mostrar mensaje de éxito
+            alert(`✅ ¡Reciclaje registrado con éxito!\n\nMaterial: ${material}\nCantidad: ${cantidad} kg\nPuntos ganados: +${puntos}\nUbicación: ${ubicacion}\n\nTotal de puntos: ${usuarioActual?.puntos || 0}`);
+            
+            // Limpiar campo de cantidad
+            document.getElementById('cantidad').value = '';
+        }
+        
+        // ==========================================
+        // MAPA
+        // ==========================================
+        function inicializarMapa() {
+            if (map) return;
+            
+            map = L.map('map').setView([-6.771, -79.841], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            const puntosReciclaje = [
+                { nombre: "Real Plaza Chiclayo", lat: -6.771, lng: -79.841, materiales: ["Plástico", "Vidrio", "Papel"], direccion: "Av. Balta 1155" },
+                { nombre: "Parque Principal", lat: -6.773, lng: -79.839, materiales: ["Plástico", "Cartón"], direccion: "Plaza de Armas" },
+                { nombre: "Universidad Tecnológica del Perú", lat: -6.775, lng: -79.845, materiales: ["Electrónicos", "Pilas", "Papel"], direccion: "Av. Salaverry" },
+                { nombre: "Municipalidad de Chiclayo", lat: -6.769, lng: -79.838, materiales: ["Plástico", "Vidrio", "Metal", "Orgánico"], direccion: "Calle San José 823" },
+                { nombre: "Centro Comercial Open Plaza", lat: -6.767, lng: -79.852, materiales: ["Plástico", "Vidrio", "Papel", "Cartón"], direccion: "Av. Chinchaysuyo" }
+            ];
+            
+            puntosReciclaje.forEach(punto => {
+                L.marker([punto.lat, punto.lng]).addTo(map)
+                    .bindPopup(`
+                        <b>${punto.nombre}</b><br>
+                        📍 ${punto.direccion}<br>
+                        ♻️ Materiales: ${punto.materiales.join(', ')}
+                    `);
+            });
+            
+            // Geolocalización
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map)
+                            .bindPopup('📍 Tu ubicación actual').openPopup();
+                        map.setView([pos.coords.latitude, pos.coords.longitude], 13);
+                    },
+                    () => { console.log("No se pudo obtener ubicación"); }
+                );
+            }
+        }
+      
+        mostrarInicio();
+    </script>
+</body>
+</html>
