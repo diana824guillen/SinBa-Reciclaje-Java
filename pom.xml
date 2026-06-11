@@ -4,10 +4,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
          https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <!-- ========================================== -->
-    <!-- PARENT: Spring Boot Starter Parent        -->
-    <!-- ========================================== -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -30,10 +26,6 @@
     </properties>
 
     <dependencies>
-        <!-- ========================================== -->
-        <!-- DEPENDENCIAS EXISTENTES                    -->
-        <!-- ========================================== -->
-
         <!-- Firebase Admin SDK -->
         <dependency>
             <groupId>com.google.firebase</groupId>
@@ -89,11 +81,6 @@
             <artifactId>flatlaf</artifactId>
             <version>3.4.1</version>
         </dependency>
-
-        <!-- ========================================== -->
-        <!-- DEPENDENCIAS NUEVAS PARA VERSIÓN WEB      -->
-        <!-- ========================================== -->
-
         <!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
