@@ -34,7 +34,7 @@ public class LoginFrame extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Logo / título
-        JLabel title = new JLabel("♻️ SinBa", SwingConstants.CENTER);
+        JLabel title = new JLabel("SinBa", SwingConstants.CENTER);
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(new Color(46, 204, 113));
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;

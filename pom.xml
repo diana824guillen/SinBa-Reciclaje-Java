@@ -70,5 +70,30 @@
             <version>3.4.1</version>
         </dependency>
 
+        <!-- JavaFX -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>21.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>21.0.1</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Plugin para ejecutar JavaFX correctamente -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>com.sinba.MainAppFX</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
