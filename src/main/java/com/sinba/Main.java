@@ -7,8 +7,6 @@ import java.awt.*;
 
 public class Main {
     public static void main(String[] args) {
-        // ===== CONFIGURACIÓN GLOBAL DE FLATLAF =====
-        // Bordes redondeados en todos los componentes
         UIManager.put("Component.arc", 10);
         UIManager.put("Button.arc", 20);
         UIManager.put("TextComponent.arc", 10);
@@ -29,8 +27,6 @@ public class Main {
         // Fondo general y texto
         UIManager.put("Panel.background", new Color(245, 248, 250));
         UIManager.put("Label.foreground", new Color(44, 62, 80));
-
-        // Fuente moderna (Segoe UI en Windows, buena alternativa en Linux/Mac)
         Font defaultFont = new Font("Segoe UI", Font.PLAIN, 14);
         UIManager.put("defaultFont", defaultFont);
         UIManager.put("Button.font", new Font("Segoe UI", Font.BOLD, 14));
@@ -41,14 +37,12 @@ public class Main {
         UIManager.put("Table.font", defaultFont);
         UIManager.put("TableHeader.font", new Font("Segoe UI", Font.BOLD, 14));
 
-        // Instalar FlatLaf Light con la configuración anterior
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
         } catch (Exception ex) {
             System.err.println("No se pudo cargar FlatLaf. Usando Look & Feel por defecto.");
         }
 
-        // Iniciar la aplicación
         SwingUtilities.invokeLater(() -> {
             LoginFrame frame = new LoginFrame();
             frame.setVisible(true);
