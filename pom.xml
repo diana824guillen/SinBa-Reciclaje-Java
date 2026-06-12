@@ -85,7 +85,6 @@
 
     <build>
         <plugins>
-            <!-- Plugin para ejecutar JavaFX correctamente -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
